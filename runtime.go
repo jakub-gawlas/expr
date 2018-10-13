@@ -13,16 +13,15 @@ func toBool(n Node, v reflect.Value) bool {
 	panic(fmt.Sprintf("cannot convert %v (type %T) to type bool", n, v))
 }
 
-func toText(n Node, val interface{}) string {
-	v := reflect.ValueOf(val)
+func toText(n Node, v reflect.Value) string {
 	switch v.Kind() {
 	case reflect.String:
 		return v.String()
 	}
-	panic(fmt.Sprintf("cannot convert %v (type %T) to type string", n, val))
+	panic(fmt.Sprintf("cannot convert %v (type %T) to type string", n, v))
 }
 
-func toNumber(n Node, val interface{}) float64 {
+func toNumber(n Node, val reflect.Value) float64 {
 	v, ok := cast(val)
 	if ok {
 		return v
@@ -30,8 +29,7 @@ func toNumber(n Node, val interface{}) float64 {
 	panic(fmt.Sprintf("cannot convert %v (type %T) to type float64", n, val))
 }
 
-func cast(val interface{}) (float64, bool) {
-	v := reflect.ValueOf(val)
+func cast(v reflect.Value) (float64, bool) {
 	switch v.Kind() {
 	case reflect.Float32, reflect.Float64:
 		return v.Float(), true
@@ -56,20 +54,19 @@ func canBeNumber(val interface{}) bool {
 	return false
 }
 
-func equal(left, right interface{}) bool {
+func equal(left, right reflect.Value) bool {
 	if isNumber(left) && canBeNumber(right) {
 		right, _ := cast(right)
-		return left == right
+		return left.Interface() == right
 	} else if canBeNumber(left) && isNumber(right) {
 		left, _ := cast(left)
-		return left == right
+		return left == right.Interface()
 	} else {
-		return reflect.DeepEqual(left, right)
+		return reflect.DeepEqual(left.Interface(), right.Interface())
 	}
 }
 
-func extract(val interface{}, i interface{}) (reflect.Value, bool) {
-	v := reflect.ValueOf(val)
+func extract(v, i reflect.Value) (reflect.Value, bool) {
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice, reflect.String:
 		n, ok := cast(i)
@@ -81,16 +78,17 @@ func extract(val interface{}, i interface{}) (reflect.Value, bool) {
 		return value, true
 
 	case reflect.Map:
-		value := v.MapIndex(reflect.ValueOf(i))
+		value := v.MapIndex(i)
 		return value, true
 	case reflect.Struct:
-		value := v.FieldByName(reflect.ValueOf(i).String())
+		value := v.FieldByName(i.String())
 		return value, true
 	case reflect.Ptr:
 		value := v.Elem()
-		if value.IsValid() && value.CanInterface() {
-			return extract(value.Interface(), i)
-		}
+		return extract(value, i)
+	case reflect.Interface:
+		value := v.Interface()
+		return extract(reflect.ValueOf(value), i)
 	}
 	return null, false
 }
@@ -125,18 +123,17 @@ func getFunc(val interface{}, i interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-func contains(needle interface{}, array interface{}) (bool, error) {
-	if array != nil {
-		v := reflect.ValueOf(array)
-		switch v.Kind() {
+func contains(needle, array reflect.Value) (bool, error) {
+	if array.Interface() != nil {
+		switch array.Kind() {
 		case reflect.Array, reflect.Slice:
-			for i := 0; i < v.Len(); i++ {
-				value := v.Index(i)
-				if value.IsValid() && value.CanInterface() {
-					if equal(value.Interface(), needle) {
-						return true, nil
-					}
+			for i := 0; i < array.Len(); i++ {
+				value := array.Index(i)
+
+				if equal(value, needle) {
+					return true, nil
 				}
+
 			}
 			return false, nil
 		case reflect.Map:
@@ -144,7 +141,7 @@ func contains(needle interface{}, array interface{}) (bool, error) {
 			if !n.IsValid() {
 				return false, fmt.Errorf("cannot use %T as index to %T", needle, array)
 			}
-			value := v.MapIndex(n)
+			value := array.MapIndex(n)
 			if value.IsValid() {
 				return true, nil
 			}
@@ -154,16 +151,15 @@ func contains(needle interface{}, array interface{}) (bool, error) {
 			if !n.IsValid() || n.Kind() != reflect.String {
 				return false, fmt.Errorf("cannot use %T as field name of %T", needle, array)
 			}
-			value := v.FieldByName(n.String())
+			value := array.FieldByName(n.String())
 			if value.IsValid() {
 				return true, nil
 			}
 			return false, nil
 		case reflect.Ptr:
-			value := v.Elem()
-			if value.IsValid() && value.CanInterface() {
-				return contains(needle, value.Interface())
-			}
+			value := array.Elem()
+			return contains(needle, value)
+
 			return false, nil
 		}
 		return false, fmt.Errorf("operator \"in\" not defined on %T", array)
@@ -171,7 +167,6 @@ func contains(needle interface{}, array interface{}) (bool, error) {
 	return false, nil
 }
 
-func isNil(val interface{}) bool {
-	v := reflect.ValueOf(val)
+func isNil(v reflect.Value) bool {
 	return !v.IsValid() || v.IsNil()
 }

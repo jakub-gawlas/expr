@@ -59,7 +59,7 @@ func (n textNode) Eval(env interface{}) (reflect.Value, error) {
 }
 
 func (n nameNode) Eval(env interface{}) (reflect.Value, error) {
-	v, ok := extract(env, n.name)
+	v, ok := extract(reflect.ValueOf(env), reflect.ValueOf(n.name))
 	if !ok {
 		return null, fmt.Errorf("undefined: %v", n)
 	}
@@ -245,7 +245,7 @@ func (n propertyNode) Eval(env interface{}) (reflect.Value, error) {
 	if err != nil {
 		return null, err
 	}
-	p, ok := extract(v, n.property)
+	p, ok := extract(v, reflect.ValueOf(n.property))
 	if !ok {
 		if isNil(v) {
 			return null, fmt.Errorf("%v is nil", n.node)
@@ -343,7 +343,7 @@ func (n functionNode) Eval(env interface{}) (reflect.Value, error) {
 		if err != nil {
 			return null, err
 		}
-		in = append(in, reflect.ValueOf(i))
+		in = append(in, i)
 	}
 
 	out := reflect.ValueOf(fn).Call(in)
