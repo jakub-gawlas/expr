@@ -277,7 +277,7 @@ func (n methodNode) Eval(env interface{}) (reflect.Value, error) {
 		return null, err
 	}
 
-	method, ok := getFunc(v, n.method)
+	method, ok := getFunc(v, reflect.ValueOf(n.method))
 	if !ok {
 		return null, fmt.Errorf("cannot get method %v from %T: %v", n.method, v, n)
 	}
@@ -331,7 +331,7 @@ func (n builtinNode) Eval(env interface{}) (reflect.Value, error) {
 }
 
 func (n functionNode) Eval(env interface{}) (reflect.Value, error) {
-	fn, ok := getFunc(env, n.name)
+	fn, ok := getFunc(reflect.ValueOf(env), reflect.ValueOf(n.name))
 	if !ok {
 		return null, fmt.Errorf("undefined: %v", n.name)
 	}

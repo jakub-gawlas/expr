@@ -21,12 +21,12 @@ func toText(n Node, v reflect.Value) string {
 	panic(fmt.Sprintf("cannot convert %v (type %T) to type string", n, v))
 }
 
-func toNumber(n Node, val reflect.Value) float64 {
-	v, ok := cast(val)
+func toNumber(n Node, v reflect.Value) float64 {
+	f, ok := cast(v)
 	if ok {
-		return v
+		return f
 	}
-	panic(fmt.Sprintf("cannot convert %v (type %T) to type float64", n, val))
+	panic(fmt.Sprintf("cannot convert %v (type %T) to type float64", n, v))
 }
 
 func cast(v reflect.Value) (float64, bool) {
@@ -43,14 +43,12 @@ func cast(v reflect.Value) (float64, bool) {
 	return 0, false
 }
 
-func isNumber(val interface{}) bool {
-	return val != nil && reflect.TypeOf(val).Kind() == reflect.Float64
+func isNumber(v reflect.Value) bool {
+	return v.Type().Kind() == reflect.Float64
 }
 
-func canBeNumber(val interface{}) bool {
-	if val != nil {
-		return isNumberType(reflect.TypeOf(val))
-	}
+func canBeNumber(v reflect.Value) bool {
+	return isNumberType(v.Type())
 	return false
 }
 
@@ -93,8 +91,7 @@ func extract(v, i reflect.Value) (reflect.Value, bool) {
 	return null, false
 }
 
-func getFunc(val interface{}, i interface{}) (interface{}, bool) {
-	v := reflect.ValueOf(val)
+func getFunc(v, i reflect.Value) (reflect.Value, bool) {
 	d := v
 	if v.Kind() == reflect.Ptr {
 		d = v.Elem()
@@ -102,25 +99,21 @@ func getFunc(val interface{}, i interface{}) (interface{}, bool) {
 
 	switch d.Kind() {
 	case reflect.Map:
-		value := d.MapIndex(reflect.ValueOf(i))
+		value := d.MapIndex(i)
 		if value.IsValid() && value.CanInterface() {
-			return value.Interface(), true
+			return value, true
 		}
 	case reflect.Struct:
-		name := reflect.ValueOf(i).String()
+		name := i.String()
 		method := v.MethodByName(name)
-		if method.IsValid() && method.CanInterface() {
-			return method.Interface(), true
-		}
+		return method, true
 
 		// If struct has not method, maybe it has func field.
 		// To access this field we need dereferenced value.
 		value := d.FieldByName(name)
-		if value.IsValid() && value.CanInterface() {
-			return value.Interface(), true
-		}
+		return value, true
 	}
-	return nil, false
+	return null, false
 }
 
 func contains(needle, array reflect.Value) (bool, error) {
