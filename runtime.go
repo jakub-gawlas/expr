@@ -5,13 +5,12 @@ import (
 	"reflect"
 )
 
-func toBool(n Node, val interface{}) bool {
-	v := reflect.ValueOf(val)
+func toBool(n Node, v reflect.Value) bool {
 	switch v.Kind() {
 	case reflect.Bool:
 		return v.Bool()
 	}
-	panic(fmt.Sprintf("cannot convert %v (type %T) to type bool", n, val))
+	panic(fmt.Sprintf("cannot convert %v (type %T) to type bool", n, v))
 }
 
 func toText(n Node, val interface{}) string {
@@ -69,7 +68,7 @@ func equal(left, right interface{}) bool {
 	}
 }
 
-func extract(val interface{}, i interface{}) (interface{}, bool) {
+func extract(val interface{}, i interface{}) (reflect.Value, bool) {
 	v := reflect.ValueOf(val)
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice, reflect.String:
@@ -79,26 +78,21 @@ func extract(val interface{}, i interface{}) (interface{}, bool) {
 		}
 
 		value := v.Index(int(n))
-		if value.IsValid() && value.CanInterface() {
-			return value.Interface(), true
-		}
+		return value, true
+
 	case reflect.Map:
 		value := v.MapIndex(reflect.ValueOf(i))
-		if value.IsValid() && value.CanInterface() {
-			return value.Interface(), true
-		}
+		return value, true
 	case reflect.Struct:
 		value := v.FieldByName(reflect.ValueOf(i).String())
-		if value.IsValid() && value.CanInterface() {
-			return value.Interface(), true
-		}
+		return value, true
 	case reflect.Ptr:
 		value := v.Elem()
 		if value.IsValid() && value.CanInterface() {
 			return extract(value.Interface(), i)
 		}
 	}
-	return nil, false
+	return null, false
 }
 
 func getFunc(val interface{}, i interface{}) (interface{}, bool) {

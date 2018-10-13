@@ -24,117 +24,126 @@ func Run(node Node, env interface{}) (out interface{}, err error) {
 		}
 	}()
 
-	return node.Eval(env)
+	v, err := node.Eval(env)
+	if err != nil {
+		return nil, err
+	}
+	if v.IsValid() && v.CanInterface() {
+		return v.Interface(), nil
+	}
+	return nil, nil
 }
 
 // eval functions
 
-func (n nilNode) Eval(env interface{}) (interface{}, error) {
-	return nil, nil
+var null = reflect.ValueOf(nil)
+
+func (n nilNode) Eval(env interface{}) (reflect.Value, error) {
+	return null, nil
 }
 
-func (n identifierNode) Eval(env interface{}) (interface{}, error) {
-	return n.value, nil
+func (n identifierNode) Eval(env interface{}) (reflect.Value, error) {
+	return reflect.ValueOf(n.value), nil
 }
 
-func (n numberNode) Eval(env interface{}) (interface{}, error) {
-	return n.value, nil
+func (n numberNode) Eval(env interface{}) (reflect.Value, error) {
+	return reflect.ValueOf(n.value), nil
 }
 
-func (n boolNode) Eval(env interface{}) (interface{}, error) {
-	return n.value, nil
+func (n boolNode) Eval(env interface{}) (reflect.Value, error) {
+	return reflect.ValueOf(n.value), nil
 }
 
-func (n textNode) Eval(env interface{}) (interface{}, error) {
-	return n.value, nil
+func (n textNode) Eval(env interface{}) (reflect.Value, error) {
+	return reflect.ValueOf(n.value), nil
 }
 
-func (n nameNode) Eval(env interface{}) (interface{}, error) {
+func (n nameNode) Eval(env interface{}) (reflect.Value, error) {
 	v, ok := extract(env, n.name)
 	if !ok {
-		return nil, fmt.Errorf("undefined: %v", n)
+		return null, fmt.Errorf("undefined: %v", n)
 	}
 	return v, nil
 }
 
-func (n unaryNode) Eval(env interface{}) (interface{}, error) {
+func (n unaryNode) Eval(env interface{}) (reflect.Value, error) {
 	val, err := n.node.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	switch n.operator {
 	case "not", "!":
-		return !toBool(n, val), nil
+		return reflect.ValueOf(!toBool(n, val)), nil
 	}
 
 	v := toNumber(n, val)
 	switch n.operator {
 	case "-":
-		return -v, nil
+		return reflect.ValueOf(-v), nil
 	case "+":
-		return +v, nil
+		return reflect.ValueOf(+v), nil
 	}
 
-	return nil, fmt.Errorf("implement unary %q operator", n.operator)
+	return null, fmt.Errorf("implement unary %q operator", n.operator)
 }
 
-func (n binaryNode) Eval(env interface{}) (interface{}, error) {
+func (n binaryNode) Eval(env interface{}) (reflect.Value, error) {
 	left, err := n.left.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	switch n.operator {
 	case "or", "||":
 		if toBool(n.left, left) {
-			return true, nil
+			return reflect.ValueOf(true), nil
 		}
 		right, err := n.right.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
-		return toBool(n.right, right), nil
+		return reflect.ValueOf(toBool(n.right, right)), nil
 
 	case "and", "&&":
 		if toBool(n.left, left) {
 			right, err := n.right.Eval(env)
 			if err != nil {
-				return nil, err
+				return null, err
 			}
-			return toBool(n.right, right), nil
+			return reflect.ValueOf(toBool(n.right, right)), nil
 		}
-		return false, nil
+		return reflect.ValueOf(false), nil
 	}
 
 	right, err := n.right.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	switch n.operator {
 	case "==":
-		return equal(left, right), nil
+		return reflect.ValueOf(equal(left, right)), nil
 
 	case "!=":
-		return !equal(left, right), nil
+		return reflect.ValueOf(!equal(left, right)), nil
 
 	case "in":
 		ok, err := contains(left, right)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
-		return ok, nil
+		return reflect.ValueOf(ok), nil
 
 	case "not in":
 		ok, err := contains(left, right)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
-		return !ok, nil
+		return reflect.ValueOf(!ok), nil
 
 	case "~":
-		return toText(n.left, left) + toText(n.right, right), nil
+		return reflect.ValueOf(toText(n.left, left) + toText(n.right, right)), nil
 	}
 
 	// Next goes operators on numbers
@@ -143,134 +152,134 @@ func (n binaryNode) Eval(env interface{}) (interface{}, error) {
 
 	switch n.operator {
 	case "|":
-		return int(l) | int(r), nil
+		return reflect.ValueOf(int(l) | int(r)), nil
 
 	case "^":
-		return int(l) ^ int(r), nil
+		return reflect.ValueOf(int(l) ^ int(r)), nil
 
 	case "&":
-		return int(l) & int(r), nil
+		return reflect.ValueOf(int(l) & int(r)), nil
 
 	case "<":
-		return l < r, nil
+		return reflect.ValueOf(l < r), nil
 
 	case ">":
-		return l > r, nil
+		return reflect.ValueOf(l > r), nil
 
 	case ">=":
-		return l >= r, nil
+		return reflect.ValueOf(l >= r), nil
 
 	case "<=":
-		return l <= r, nil
+		return reflect.ValueOf(l <= r), nil
 
 	case "+":
-		return l + r, nil
+		return reflect.ValueOf(l + r), nil
 
 	case "-":
-		return l - r, nil
+		return reflect.ValueOf(l - r), nil
 
 	case "*":
-		return l * r, nil
+		return reflect.ValueOf(l * r), nil
 
 	case "/":
 		div := r
 		if div == 0 {
-			return nil, fmt.Errorf("division by zero")
+			return null, fmt.Errorf("division by zero")
 		}
-		return l / div, nil
+		return reflect.ValueOf(l / div), nil
 
 	case "%":
 		numerator := int64(l)
 		denominator := int64(r)
 		if denominator == 0 {
-			return nil, fmt.Errorf("division by zero")
+			return null, fmt.Errorf("division by zero")
 		}
-		return float64(numerator % denominator), nil
+		return reflect.ValueOf(float64(numerator % denominator)), nil
 
 	case "**":
-		return math.Pow(l, r), nil
+		return reflect.ValueOf(math.Pow(l, r)), nil
 
 	case "..":
 		return makeRange(int64(l), int64(r))
 	}
 
-	return nil, fmt.Errorf("implement %q operator", n.operator)
+	return null, fmt.Errorf("implement %q operator", n.operator)
 }
 
-func makeRange(min, max int64) ([]float64, error) {
+func makeRange(min, max int64) (reflect.Value, error) {
 	size := max - min + 1
 	if size > 1e6 {
-		return nil, fmt.Errorf("range %v..%v exceeded max size of 1e6", min, max)
+		return null, fmt.Errorf("range %v..%v exceeded max size of 1e6", min, max)
 	}
 	a := make([]float64, size)
 	for i := range a {
 		a[i] = float64(min + int64(i))
 	}
-	return a, nil
+	return reflect.ValueOf(a), nil
 }
 
-func (n matchesNode) Eval(env interface{}) (interface{}, error) {
+func (n matchesNode) Eval(env interface{}) (reflect.Value, error) {
 	left, err := n.left.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	if n.r != nil {
-		return n.r.MatchString(toText(n.left, left)), nil
+		return reflect.ValueOf(n.r.MatchString(toText(n.left, left))), nil
 	}
 
 	right, err := n.right.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	matched, err := regexp.MatchString(toText(n.right, right), toText(n.left, left))
 	if err != nil {
-		return nil, err
+		return null, err
 	}
-	return matched, nil
+	return reflect.ValueOf(matched), nil
 }
 
-func (n propertyNode) Eval(env interface{}) (interface{}, error) {
+func (n propertyNode) Eval(env interface{}) (reflect.Value, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 	p, ok := extract(v, n.property)
 	if !ok {
 		if isNil(v) {
-			return nil, fmt.Errorf("%v is nil", n.node)
+			return null, fmt.Errorf("%v is nil", n.node)
 		}
-		return nil, fmt.Errorf("%v undefined (type %T has no field %v)", n, v, n.property)
+		return null, fmt.Errorf("%v undefined (type %T has no field %v)", n, v, n.property)
 	}
 	return p, nil
 }
 
-func (n indexNode) Eval(env interface{}) (interface{}, error) {
+func (n indexNode) Eval(env interface{}) (reflect.Value, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 	i, err := n.index.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 	p, ok := extract(v, i)
 	if !ok {
-		return nil, fmt.Errorf("cannot get %q from %T: %v", i, v, n)
+		return null, fmt.Errorf("cannot get %q from %T: %v", i, v, n)
 	}
 	return p, nil
 }
 
-func (n methodNode) Eval(env interface{}) (interface{}, error) {
+func (n methodNode) Eval(env interface{}) (reflect.Value, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	method, ok := getFunc(v, n.method)
 	if !ok {
-		return nil, fmt.Errorf("cannot get method %v from %T: %v", n.method, v, n)
+		return null, fmt.Errorf("cannot get method %v from %T: %v", n.method, v, n)
 	}
 
 	in := make([]reflect.Value, 0)
@@ -278,7 +287,7 @@ func (n methodNode) Eval(env interface{}) (interface{}, error) {
 	for _, a := range n.arguments {
 		i, err := a.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		in = append(in, reflect.ValueOf(i))
 	}
@@ -286,47 +295,45 @@ func (n methodNode) Eval(env interface{}) (interface{}, error) {
 	out := reflect.ValueOf(method).Call(in)
 
 	if len(out) == 0 {
-		return nil, nil
+		return null, nil
 	} else if len(out) > 1 {
-		return nil, fmt.Errorf("method %q must return only one value", n.method)
+		return null, fmt.Errorf("method %q must return only one value", n.method)
 	}
 
-	if out[0].IsValid() && out[0].CanInterface() {
-		return out[0].Interface(), nil
-	}
+	return out[0], nil
 
-	return nil, nil
+	return null, nil
 }
 
-func (n builtinNode) Eval(env interface{}) (interface{}, error) {
+func (n builtinNode) Eval(env interface{}) (reflect.Value, error) {
 	switch n.name {
 	case "len":
 		if len(n.arguments) == 0 {
-			return nil, fmt.Errorf("missing argument: %v", n)
+			return null, fmt.Errorf("missing argument: %v", n)
 		}
 		if len(n.arguments) > 1 {
-			return nil, fmt.Errorf("too many arguments: %v", n)
+			return null, fmt.Errorf("too many arguments: %v", n)
 		}
 
 		i, err := n.arguments[0].Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 
 		switch reflect.TypeOf(i).Kind() {
 		case reflect.Array, reflect.Slice, reflect.String:
-			return float64(reflect.ValueOf(i).Len()), nil
+			return reflect.ValueOf(float64(reflect.ValueOf(i).Len())), nil
 		}
-		return nil, fmt.Errorf("invalid argument %v (type %T)", n, i)
+		return null, fmt.Errorf("invalid argument %v (type %T)", n, i)
 	}
 
-	return nil, fmt.Errorf("unknown %q builtin", n.name)
+	return null, fmt.Errorf("unknown %q builtin", n.name)
 }
 
-func (n functionNode) Eval(env interface{}) (interface{}, error) {
+func (n functionNode) Eval(env interface{}) (reflect.Value, error) {
 	fn, ok := getFunc(env, n.name)
 	if !ok {
-		return nil, fmt.Errorf("undefined: %v", n.name)
+		return null, fmt.Errorf("undefined: %v", n.name)
 	}
 
 	in := make([]reflect.Value, 0)
@@ -334,7 +341,7 @@ func (n functionNode) Eval(env interface{}) (interface{}, error) {
 	for _, a := range n.arguments {
 		i, err := a.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		in = append(in, reflect.ValueOf(i))
 	}
@@ -342,22 +349,20 @@ func (n functionNode) Eval(env interface{}) (interface{}, error) {
 	out := reflect.ValueOf(fn).Call(in)
 
 	if len(out) == 0 {
-		return nil, nil
+		return null, nil
 	} else if len(out) > 1 {
-		return nil, fmt.Errorf("func %q must return only one value", n.name)
+		return null, fmt.Errorf("func %q must return only one value", n.name)
 	}
 
-	if out[0].IsValid() && out[0].CanInterface() {
-		return out[0].Interface(), nil
-	}
+	return out[0], nil
 
-	return nil, nil
+	return null, nil
 }
 
-func (n conditionalNode) Eval(env interface{}) (interface{}, error) {
+func (n conditionalNode) Eval(env interface{}) (reflect.Value, error) {
 	cond, err := n.cond.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 
 	// If
@@ -365,43 +370,43 @@ func (n conditionalNode) Eval(env interface{}) (interface{}, error) {
 		// Then
 		a, err := n.exp1.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		return a, nil
 	}
 	// Else
 	b, err := n.exp2.Eval(env)
 	if err != nil {
-		return nil, err
+		return null, err
 	}
 	return b, nil
 
 }
 
-func (n arrayNode) Eval(env interface{}) (interface{}, error) {
+func (n arrayNode) Eval(env interface{}) (reflect.Value, error) {
 	array := make([]interface{}, 0)
 	for _, node := range n.nodes {
 		val, err := node.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		array = append(array, val)
 	}
-	return array, nil
+	return reflect.ValueOf(array), nil
 }
 
-func (n mapNode) Eval(env interface{}) (interface{}, error) {
+func (n mapNode) Eval(env interface{}) (reflect.Value, error) {
 	m := make(map[interface{}]interface{})
 	for _, pair := range n.pairs {
 		key, err := pair.key.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		value, err := pair.value.Eval(env)
 		if err != nil {
-			return nil, err
+			return null, err
 		}
 		m[key] = value
 	}
-	return m, nil
+	return reflect.ValueOf(m), nil
 }

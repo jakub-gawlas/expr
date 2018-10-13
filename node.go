@@ -1,13 +1,14 @@
 package expr
 
 import (
+	"reflect"
 	"regexp"
 )
 
 // Node represents items of abstract syntax tree.
 type Node interface {
 	Type(table typesTable) (Type, error)
-	Eval(env interface{}) (interface{}, error)
+	Eval(env interface{}) (reflect.Value, error)
 }
 
 type nilNode struct{}
