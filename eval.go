@@ -29,27 +29,27 @@ func Run(node Node, env interface{}) (out interface{}, err error) {
 
 // eval functions
 
-func (n nilNode) Eval(env interface{}) (interface{}, error) {
+func (n *nilNode) Eval(env interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func (n identifierNode) Eval(env interface{}) (interface{}, error) {
+func (n *identifierNode) Eval(env interface{}) (interface{}, error) {
 	return n.value, nil
 }
 
-func (n numberNode) Eval(env interface{}) (interface{}, error) {
+func (n *numberNode) Eval(env interface{}) (interface{}, error) {
 	return n.value, nil
 }
 
-func (n boolNode) Eval(env interface{}) (interface{}, error) {
+func (n *boolNode) Eval(env interface{}) (interface{}, error) {
 	return n.value, nil
 }
 
-func (n textNode) Eval(env interface{}) (interface{}, error) {
+func (n *textNode) Eval(env interface{}) (interface{}, error) {
 	return n.value, nil
 }
 
-func (n nameNode) Eval(env interface{}) (interface{}, error) {
+func (n *nameNode) Eval(env interface{}) (interface{}, error) {
 	v, ok := extract(env, n.name)
 	if !ok {
 		return nil, fmt.Errorf("undefined: %v", n)
@@ -57,7 +57,7 @@ func (n nameNode) Eval(env interface{}) (interface{}, error) {
 	return v, nil
 }
 
-func (n unaryNode) Eval(env interface{}) (interface{}, error) {
+func (n *unaryNode) Eval(env interface{}) (interface{}, error) {
 	val, err := n.node.Eval(env)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (n unaryNode) Eval(env interface{}) (interface{}, error) {
 	return nil, fmt.Errorf("implement unary %q operator", n.operator)
 }
 
-func (n binaryNode) Eval(env interface{}) (interface{}, error) {
+func (n *binaryNode) Eval(env interface{}) (interface{}, error) {
 	left, err := n.left.Eval(env)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ func makeRange(min, max int64) ([]float64, error) {
 	return a, nil
 }
 
-func (n matchesNode) Eval(env interface{}) (interface{}, error) {
+func (n *matchesNode) Eval(env interface{}) (interface{}, error) {
 	left, err := n.left.Eval(env)
 	if err != nil {
 		return nil, err
@@ -231,7 +231,7 @@ func (n matchesNode) Eval(env interface{}) (interface{}, error) {
 	return matched, nil
 }
 
-func (n propertyNode) Eval(env interface{}) (interface{}, error) {
+func (n *propertyNode) Eval(env interface{}) (interface{}, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
 		return nil, err
@@ -246,7 +246,7 @@ func (n propertyNode) Eval(env interface{}) (interface{}, error) {
 	return p, nil
 }
 
-func (n indexNode) Eval(env interface{}) (interface{}, error) {
+func (n *indexNode) Eval(env interface{}) (interface{}, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
 		return nil, err
@@ -262,7 +262,7 @@ func (n indexNode) Eval(env interface{}) (interface{}, error) {
 	return p, nil
 }
 
-func (n methodNode) Eval(env interface{}) (interface{}, error) {
+func (n *methodNode) Eval(env interface{}) (interface{}, error) {
 	v, err := n.node.Eval(env)
 	if err != nil {
 		return nil, err
@@ -298,7 +298,7 @@ func (n methodNode) Eval(env interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func (n builtinNode) Eval(env interface{}) (interface{}, error) {
+func (n *builtinNode) Eval(env interface{}) (interface{}, error) {
 	switch n.name {
 	case "len":
 		if len(n.arguments) == 0 {
@@ -323,7 +323,7 @@ func (n builtinNode) Eval(env interface{}) (interface{}, error) {
 	return nil, fmt.Errorf("unknown %q builtin", n.name)
 }
 
-func (n functionNode) Eval(env interface{}) (interface{}, error) {
+func (n *functionNode) Eval(env interface{}) (interface{}, error) {
 	fn, ok := getFunc(env, n.name)
 	if !ok {
 		return nil, fmt.Errorf("undefined: %v", n.name)
@@ -354,7 +354,7 @@ func (n functionNode) Eval(env interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func (n conditionalNode) Eval(env interface{}) (interface{}, error) {
+func (n *conditionalNode) Eval(env interface{}) (interface{}, error) {
 	cond, err := n.cond.Eval(env)
 	if err != nil {
 		return nil, err
@@ -378,7 +378,7 @@ func (n conditionalNode) Eval(env interface{}) (interface{}, error) {
 
 }
 
-func (n arrayNode) Eval(env interface{}) (interface{}, error) {
+func (n *arrayNode) Eval(env interface{}) (interface{}, error) {
 	array := make([]interface{}, 0)
 	for _, node := range n.nodes {
 		val, err := node.Eval(env)
@@ -390,7 +390,7 @@ func (n arrayNode) Eval(env interface{}) (interface{}, error) {
 	return array, nil
 }
 
-func (n mapNode) Eval(env interface{}) (interface{}, error) {
+func (n *mapNode) Eval(env interface{}) (interface{}, error) {
 	m := make(map[interface{}]interface{})
 	for _, pair := range n.pairs {
 		key, err := pair.key.Eval(env)

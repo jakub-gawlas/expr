@@ -5,34 +5,34 @@ import (
 	"strconv"
 )
 
-func (n nilNode) String() string {
+func (n *nilNode) String() string {
 	return "nil"
 }
 
-func (n identifierNode) String() string {
+func (n *identifierNode) String() string {
 	return n.value
 }
 
-func (n numberNode) String() string {
+func (n *numberNode) String() string {
 	return fmt.Sprintf("%v", n.value)
 }
 
-func (n boolNode) String() string {
+func (n *boolNode) String() string {
 	if n.value {
 		return "true"
 	}
 	return "false"
 }
 
-func (n textNode) String() string {
+func (n *textNode) String() string {
 	return strconv.Quote(n.value)
 }
 
-func (n nameNode) String() string {
+func (n *nameNode) String() string {
 	return n.name
 }
 
-func (n unaryNode) String() string {
+func (n *unaryNode) String() string {
 	switch n.operator {
 	case "!", "not":
 		return fmt.Sprintf("%v %v", n.operator, n.node)
@@ -40,18 +40,18 @@ func (n unaryNode) String() string {
 	return fmt.Sprintf("(%v%v)", n.operator, n.node)
 }
 
-func (n binaryNode) String() string {
+func (n *binaryNode) String() string {
 	var leftOp, rightOp *info
 	op := binaryOperators[n.operator]
 
 	switch n.left.(type) {
-	case binaryNode:
-		v := binaryOperators[n.left.(binaryNode).operator]
+	case *binaryNode:
+		v := binaryOperators[n.left.(*binaryNode).operator]
 		leftOp = &v
 	}
 	switch n.right.(type) {
-	case binaryNode:
-		v := binaryOperators[n.right.(binaryNode).operator]
+	case *binaryNode:
+		v := binaryOperators[n.right.(*binaryNode).operator]
 		rightOp = &v
 	}
 
@@ -76,19 +76,19 @@ func (n binaryNode) String() string {
 	return fmt.Sprintf("%v %v %v", l, n.operator, r)
 }
 
-func (n matchesNode) String() string {
+func (n *matchesNode) String() string {
 	return fmt.Sprintf("(%v matches %v)", n.left, n.right)
 }
 
-func (n propertyNode) String() string {
+func (n *propertyNode) String() string {
 	return fmt.Sprintf("%v.%v", n.node, n.property)
 }
 
-func (n indexNode) String() string {
+func (n *indexNode) String() string {
 	return fmt.Sprintf("%v[%v]", n.node, n.index)
 }
 
-func (n methodNode) String() string {
+func (n *methodNode) String() string {
 	s := fmt.Sprintf("%v.%v(", n.node, n.method)
 	for i, a := range n.arguments {
 		if i != 0 {
@@ -99,7 +99,7 @@ func (n methodNode) String() string {
 	return s + ")"
 }
 
-func (n builtinNode) String() string {
+func (n *builtinNode) String() string {
 	s := fmt.Sprintf("%v(", n.name)
 	for i, a := range n.arguments {
 		if i != 0 {
@@ -110,7 +110,7 @@ func (n builtinNode) String() string {
 	return s + ")"
 }
 
-func (n functionNode) String() string {
+func (n *functionNode) String() string {
 	s := fmt.Sprintf("%v(", n.name)
 	for i, a := range n.arguments {
 		if i != 0 {
@@ -121,11 +121,11 @@ func (n functionNode) String() string {
 	return s + ")"
 }
 
-func (n conditionalNode) String() string {
+func (n *conditionalNode) String() string {
 	return fmt.Sprintf("%v ? %v : %v", n.cond, n.exp1, n.exp2)
 }
 
-func (n arrayNode) String() string {
+func (n *arrayNode) String() string {
 	s := "["
 	for i, n := range n.nodes {
 		if i != 0 {
@@ -136,7 +136,7 @@ func (n arrayNode) String() string {
 	return s + "]"
 }
 
-func (n mapNode) String() string {
+func (n *mapNode) String() string {
 	s := "{"
 	for i, p := range n.pairs {
 		if i != 0 {
@@ -147,11 +147,11 @@ func (n mapNode) String() string {
 	return s + "}"
 }
 
-func (n pairNode) String() string {
+func (n *pairNode) String() string {
 	switch n.key.(type) {
-	case unaryNode:
+	case *unaryNode:
 		return fmt.Sprintf("%v: %v", n.key, n.value)
-	case binaryNode:
+	case *binaryNode:
 		return fmt.Sprintf("(%v): %v", n.key, n.value)
 	}
 	return fmt.Sprintf("%q: %v", n.key, n.value)

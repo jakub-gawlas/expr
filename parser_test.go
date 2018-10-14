@@ -20,131 +20,131 @@ type parseErrorTest struct {
 var parseTests = []parseTest{
 	{
 		"a",
-		nameNode{"a"},
+		&nameNode{"a"},
 	},
 	{
 		`"a"`,
-		textNode{"a"},
+		&textNode{"a"},
 	},
 	{
 		"3",
-		numberNode{3},
+		&numberNode{3},
 	},
 	{
 		"true",
-		boolNode{true},
+		&boolNode{true},
 	},
 	{
 		"false",
-		boolNode{false},
+		&boolNode{false},
 	},
 	{
 		"nil",
-		nilNode{},
+		&nilNode{},
 	},
 	{
 		"-3",
-		unaryNode{"-", numberNode{3}},
+		&unaryNode{"-", &numberNode{3}},
 	},
 	{
 		"1 - 2",
-		binaryNode{"-", numberNode{1}, numberNode{2}},
+		&binaryNode{"-", &numberNode{1}, &numberNode{2}},
 	},
 	{
 		"(1 - 2) * 3",
-		binaryNode{"*", binaryNode{"-", numberNode{1}, numberNode{2}}, numberNode{3}},
+		&binaryNode{"*", &binaryNode{"-", &numberNode{1}, &numberNode{2}}, &numberNode{3}},
 	},
 	{
 		"a or b or c",
-		binaryNode{"or", binaryNode{"or", nameNode{"a"}, nameNode{"b"}}, nameNode{"c"}},
+		&binaryNode{"or", &binaryNode{"or", &nameNode{"a"}, &nameNode{"b"}}, &nameNode{"c"}},
 	},
 	{
 		"a or b and c",
-		binaryNode{"or", nameNode{"a"}, binaryNode{"and", nameNode{"b"}, nameNode{"c"}}},
+		&binaryNode{"or", &nameNode{"a"}, &binaryNode{"and", &nameNode{"b"}, &nameNode{"c"}}},
 	},
 	{
 		"(a or b) and c",
-		binaryNode{"and", binaryNode{"or", nameNode{"a"}, nameNode{"b"}}, nameNode{"c"}},
+		&binaryNode{"and", &binaryNode{"or", &nameNode{"a"}, &nameNode{"b"}}, &nameNode{"c"}},
 	},
 	{
 		"2**4-1",
-		binaryNode{"-", binaryNode{"**", numberNode{2}, numberNode{4}}, numberNode{1}},
+		&binaryNode{"-", &binaryNode{"**", &numberNode{2}, &numberNode{4}}, &numberNode{1}},
 	},
 	{
 		"foo(bar())",
-		functionNode{"foo", []Node{functionNode{"bar", []Node{}}}},
+		&functionNode{"foo", []Node{&functionNode{"bar", []Node{}}}},
 	},
 	{
 		"foo.bar",
-		propertyNode{nameNode{"foo"}, "bar"},
+		&propertyNode{&nameNode{"foo"}, "bar"},
 	},
 	{
 		"foo.not",
-		propertyNode{nameNode{"foo"}, "not"},
+		&propertyNode{&nameNode{"foo"}, "not"},
 	},
 	{
 		"foo.bar()",
-		methodNode{nameNode{"foo"}, "bar", []Node{}},
+		&methodNode{&nameNode{"foo"}, "bar", []Node{}},
 	},
 	{
 		"foo.not()",
-		methodNode{nameNode{"foo"}, "not", []Node{}},
+		&methodNode{&nameNode{"foo"}, "not", []Node{}},
 	},
 	{
 		`foo.bar("arg1", 2, true)`,
-		methodNode{nameNode{"foo"}, "bar", []Node{textNode{"arg1"}, numberNode{2}, boolNode{true}}},
+		&methodNode{&nameNode{"foo"}, "bar", []Node{&textNode{"arg1"}, &numberNode{2}, &boolNode{true}}},
 	},
 	{
 		"foo[3]",
-		indexNode{nameNode{"foo"}, numberNode{3}},
+		&indexNode{&nameNode{"foo"}, &numberNode{3}},
 	},
 	{
 		"true ? true : false",
-		conditionalNode{boolNode{true}, boolNode{true}, boolNode{false}},
+		&conditionalNode{&boolNode{true}, &boolNode{true}, &boolNode{false}},
 	},
 	{
 		"a ?: b",
-		conditionalNode{nameNode{"a"}, nameNode{"a"}, nameNode{"b"}},
+		&conditionalNode{&nameNode{"a"}, &nameNode{"a"}, &nameNode{"b"}},
 	},
 	{
 		"foo.bar().foo().baz[33]",
-		indexNode{propertyNode{methodNode{methodNode{nameNode{"foo"}, "bar", []Node{}}, "foo", []Node{}}, "baz"}, numberNode{33}},
+		&indexNode{&propertyNode{&methodNode{&methodNode{&nameNode{"foo"}, "bar", []Node{}}, "foo", []Node{}}, "baz"}, &numberNode{33}},
 	},
 	{
 		"+0 != -0",
-		binaryNode{"!=", unaryNode{"+", numberNode{0}}, unaryNode{"-", numberNode{0}}},
+		&binaryNode{"!=", &unaryNode{"+", &numberNode{0}}, &unaryNode{"-", &numberNode{0}}},
 	},
 	{
 		"[a, b, c]",
-		arrayNode{[]Node{nameNode{"a"}, nameNode{"b"}, nameNode{"c"}}},
+		&arrayNode{[]Node{&nameNode{"a"}, &nameNode{"b"}, &nameNode{"c"}}},
 	},
 	{
 		"{foo:1, bar:2}",
-		mapNode{[]pairNode{{identifierNode{"foo"}, numberNode{1}}, {identifierNode{"bar"}, numberNode{2}}}},
+		&mapNode{[]*pairNode{{&identifierNode{"foo"}, &numberNode{1}}, {&identifierNode{"bar"}, &numberNode{2}}}},
 	},
 	{
 		`{"foo":1, (1+2):2}`,
-		mapNode{[]pairNode{{identifierNode{"foo"}, numberNode{1}}, {binaryNode{"+", numberNode{1}, numberNode{2}}, numberNode{2}}}},
+		&mapNode{[]*pairNode{{&identifierNode{"foo"}, &numberNode{1}}, {&binaryNode{"+", &numberNode{1}, &numberNode{2}}, &numberNode{2}}}},
 	},
 	{
 		"[1].foo",
-		propertyNode{arrayNode{[]Node{numberNode{1}}}, "foo"},
+		&propertyNode{&arrayNode{[]Node{&numberNode{1}}}, "foo"},
 	},
 	{
 		"{foo:1}.bar",
-		propertyNode{mapNode{[]pairNode{{identifierNode{"foo"}, numberNode{1}}}}, "bar"},
+		&propertyNode{&mapNode{[]*pairNode{{&identifierNode{"foo"}, &numberNode{1}}}}, "bar"},
 	},
 	{
 		"len(foo)",
-		builtinNode{"len", []Node{nameNode{"foo"}}},
+		&builtinNode{"len", []Node{&nameNode{"foo"}}},
 	},
 	{
 		`foo matches "foo"`,
-		matchesNode{left: nameNode{"foo"}, right: textNode{"foo"}},
+		&matchesNode{left: &nameNode{"foo"}, right: &textNode{"foo"}},
 	},
 	{
 		`foo matches regex`,
-		matchesNode{left: nameNode{"foo"}, right: nameNode{"regex"}},
+		&matchesNode{left: &nameNode{"foo"}, right: &nameNode{"regex"}},
 	},
 }
 
@@ -186,7 +186,7 @@ func TestParse(t *testing.T) {
 			t.Errorf("%s:\n%v", test.input, err)
 			continue
 		}
-		if m, ok := actual.(matchesNode); ok {
+		if m, ok := actual.(*matchesNode); ok {
 			m.r = nil
 			actual = m
 		}

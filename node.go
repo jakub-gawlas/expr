@@ -6,7 +6,6 @@ import (
 
 // Node represents items of abstract syntax tree.
 type Node interface {
-	Type(table typesTable) (Type, error)
 	Eval(env interface{}) (interface{}, error)
 }
 
@@ -86,7 +85,7 @@ type arrayNode struct {
 }
 
 type mapNode struct {
-	pairs []pairNode
+	pairs []*pairNode
 }
 
 type pairNode struct {

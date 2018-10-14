@@ -20,35 +20,57 @@ var (
 	interfaceType = reflect.TypeOf(new(interface{})).Elem()
 )
 
-func (n nilNode) Type(table typesTable) (Type, error) {
+type typed interface {
+	Type(*parser) (Type, error)
+}
+
+func (p *parser) Type(node *Node) (Type, error) {
+	ntype, err := (*node).(typed).Type(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// Replace generated nodes.
+	switch (*node).(type) {
+	case *nameNode:
+		genNode, ok := p.nameNodes[(*node).(*nameNode).name]
+		if ok {
+			*node = genNode
+		}
+	}
+
+	return ntype, nil
+}
+
+func (n *nilNode) Type(p *parser) (Type, error) {
 	return nil, nil
 }
 
-func (n identifierNode) Type(table typesTable) (Type, error) {
+func (n *identifierNode) Type(p *parser) (Type, error) {
 	return textType, nil
 }
 
-func (n numberNode) Type(table typesTable) (Type, error) {
+func (n *numberNode) Type(p *parser) (Type, error) {
 	return numberType, nil
 }
 
-func (n boolNode) Type(table typesTable) (Type, error) {
+func (n *boolNode) Type(p *parser) (Type, error) {
 	return boolType, nil
 }
 
-func (n textNode) Type(table typesTable) (Type, error) {
+func (n *textNode) Type(p *parser) (Type, error) {
 	return textType, nil
 }
 
-func (n nameNode) Type(table typesTable) (Type, error) {
-	if t, ok := table[n.name]; ok {
+func (n *nameNode) Type(p *parser) (Type, error) {
+	if t, ok := p.types[n.name]; ok {
 		return t, nil
 	}
 	return nil, fmt.Errorf("unknown name %v", n)
 }
 
-func (n unaryNode) Type(table typesTable) (Type, error) {
-	ntype, err := n.node.Type(table)
+func (n *unaryNode) Type(p *parser) (Type, error) {
+	ntype, err := p.Type(&n.node)
 	if err != nil {
 		return nil, err
 	}
@@ -64,17 +86,16 @@ func (n unaryNode) Type(table typesTable) (Type, error) {
 	return interfaceType, nil
 }
 
-func (n binaryNode) Type(table typesTable) (Type, error) {
+func (n *binaryNode) Type(p *parser) (Type, error) {
 	var err error
-	ltype, err := n.left.Type(table)
+	ltype, err := p.Type(&n.left)
 	if err != nil {
 		return nil, err
 	}
-	rtype, err := n.right.Type(table)
+	rtype, err := p.Type(&n.right)
 	if err != nil {
 		return nil, err
 	}
-
 	switch n.operator {
 	case "==", "!=":
 		if isComparable(ltype, rtype) {
@@ -126,13 +147,13 @@ func (n binaryNode) Type(table typesTable) (Type, error) {
 	return interfaceType, nil
 }
 
-func (n matchesNode) Type(table typesTable) (Type, error) {
+func (n *matchesNode) Type(p *parser) (Type, error) {
 	var err error
-	ltype, err := n.left.Type(table)
+	ltype, err := p.Type(&n.left)
 	if err != nil {
 		return nil, err
 	}
-	rtype, err := n.right.Type(table)
+	rtype, err := p.Type(&n.right)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +163,8 @@ func (n matchesNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf(`invalid operation: %v (mismatched types %v and %v)`, n, ltype, rtype)
 }
 
-func (n propertyNode) Type(table typesTable) (Type, error) {
-	ntype, err := n.node.Type(table)
+func (n *propertyNode) Type(p *parser) (Type, error) {
+	ntype, err := p.Type(&n.node)
 	if err != nil {
 		return nil, err
 	}
@@ -153,12 +174,12 @@ func (n propertyNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf("%v undefined (type %v has no field %v)", n, ntype, n.property)
 }
 
-func (n indexNode) Type(table typesTable) (Type, error) {
-	ntype, err := n.node.Type(table)
+func (n *indexNode) Type(p *parser) (Type, error) {
+	ntype, err := p.Type(&n.node)
 	if err != nil {
 		return nil, err
 	}
-	_, err = n.index.Type(table)
+	_, err = p.Type(&n.index)
 	if err != nil {
 		return nil, err
 	}
@@ -168,13 +189,13 @@ func (n indexNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf("invalid operation: %v (type %v does not support indexing)", n, ntype)
 }
 
-func (n methodNode) Type(table typesTable) (Type, error) {
-	ntype, err := n.node.Type(table)
+func (n *methodNode) Type(p *parser) (Type, error) {
+	ntype, err := p.Type(&n.node)
 	if err != nil {
 		return nil, err
 	}
 	for _, node := range n.arguments {
-		_, err := node.Type(table)
+		_, err := p.Type(&node)
 		if err != nil {
 			return nil, err
 		}
@@ -188,9 +209,9 @@ func (n methodNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf("%v undefined (type %v has no method %v)", n, ntype, n.method)
 }
 
-func (n builtinNode) Type(table typesTable) (Type, error) {
+func (n *builtinNode) Type(p *parser) (Type, error) {
 	for _, node := range n.arguments {
-		_, err := node.Type(table)
+		_, err := p.Type(&node)
 		if err != nil {
 			return nil, err
 		}
@@ -203,14 +224,14 @@ func (n builtinNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf("%v undefined", n)
 }
 
-func (n functionNode) Type(table typesTable) (Type, error) {
+func (n *functionNode) Type(p *parser) (Type, error) {
 	for _, node := range n.arguments {
-		_, err := node.Type(table)
+		_, err := p.Type(&node)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if t, ok := table[n.name]; ok {
+	if t, ok := p.types[n.name]; ok {
 		if f, ok := funcType(t); ok {
 			return f, nil
 		}
@@ -218,8 +239,8 @@ func (n functionNode) Type(table typesTable) (Type, error) {
 	return nil, fmt.Errorf("unknown func %v", n)
 }
 
-func (n conditionalNode) Type(table typesTable) (Type, error) {
-	ctype, err := n.cond.Type(table)
+func (n *conditionalNode) Type(p *parser) (Type, error) {
+	ctype, err := p.Type(&n.cond)
 	if err != nil {
 		return nil, err
 	}
@@ -227,11 +248,11 @@ func (n conditionalNode) Type(table typesTable) (Type, error) {
 		return nil, fmt.Errorf("non-bool %v (type %v) used as condition", n.cond, ctype)
 	}
 
-	t1, err := n.exp1.Type(table)
+	t1, err := p.Type(&n.exp1)
 	if err != nil {
 		return nil, err
 	}
-	t2, err := n.exp2.Type(table)
+	t2, err := p.Type(&n.exp2)
 	if err != nil {
 		return nil, err
 	}
@@ -251,9 +272,9 @@ func (n conditionalNode) Type(table typesTable) (Type, error) {
 	return interfaceType, nil
 }
 
-func (n arrayNode) Type(table typesTable) (Type, error) {
+func (n *arrayNode) Type(p *parser) (Type, error) {
 	for _, node := range n.nodes {
-		_, err := node.Type(table)
+		_, err := p.Type(&node)
 		if err != nil {
 			return nil, err
 		}
@@ -261,9 +282,9 @@ func (n arrayNode) Type(table typesTable) (Type, error) {
 	return arrayType, nil
 }
 
-func (n mapNode) Type(table typesTable) (Type, error) {
+func (n *mapNode) Type(p *parser) (Type, error) {
 	for _, node := range n.pairs {
-		_, err := node.Type(table)
+		_, err := node.Type(p)
 		if err != nil {
 			return nil, err
 		}
@@ -271,13 +292,13 @@ func (n mapNode) Type(table typesTable) (Type, error) {
 	return mapType, nil
 }
 
-func (n pairNode) Type(table typesTable) (Type, error) {
+func (n *pairNode) Type(p *parser) (Type, error) {
 	var err error
-	_, err = n.key.Type(table)
+	_, err = p.Type(&n.key)
 	if err != nil {
 		return nil, err
 	}
-	_, err = n.value.Type(table)
+	_, err = p.Type(&n.value)
 	if err != nil {
 		return nil, err
 	}

@@ -59,12 +59,13 @@ var builtins = map[string]bool{
 }
 
 type parser struct {
-	input    string
-	tokens   []token
-	position int
-	current  token
-	strict   bool
-	types    typesTable
+	input     string
+	tokens    []token
+	position  int
+	current   token
+	strict    bool
+	types     typesTable
+	nameNodes map[string]Node
 }
 
 // OptionFn for configuring parser.
@@ -98,7 +99,7 @@ func Parse(input string, ops ...OptionFn) (Node, error) {
 	}
 
 	if p.strict {
-		_, err = node.Type(p.types)
+		_, err = p.Type(&node)
 		if err != nil {
 			return nil, err
 		}
@@ -132,6 +133,12 @@ func Env(i interface{}) OptionFn {
 		for k, v := range p.createTypesTable(i) {
 			p.types[k] = v
 		}
+	}
+}
+
+func Gen(nodes map[string]Node) OptionFn {
+	return func(p *parser) {
+		p.nameNodes = nodes
 	}
 }
 
@@ -252,15 +259,15 @@ func (p *parser) parseExpression(precedence int) (Node, error) {
 
 				if token.is(operator, "matches") {
 					var r *regexp.Regexp
-					if s, ok := expr.(textNode); ok {
+					if s, ok := expr.(*textNode); ok {
 						r, err = regexp.Compile(s.value)
 						if err != nil {
 							return nil, p.errorf("%v", err)
 						}
 					}
-					node = matchesNode{r: r, left: node, right: expr}
+					node = &matchesNode{r: r, left: node, right: expr}
 				} else {
-					node = binaryNode{operator: token.value, left: node, right: expr}
+					node = &binaryNode{operator: token.value, left: node, right: expr}
 				}
 				token = p.current
 				continue
@@ -292,7 +299,7 @@ func (p *parser) parsePrimary() (Node, error) {
 				return nil, err
 			}
 
-			return p.parsePostfixExpression(unaryNode{operator: token.value, node: expr})
+			return p.parsePostfixExpression(&unaryNode{operator: token.value, node: expr})
 		}
 	}
 
@@ -347,7 +354,7 @@ func (p *parser) parseConditionalExpression(node Node) (Node, error) {
 			}
 		}
 
-		node = conditionalNode{node, expr1, expr2}
+		node = &conditionalNode{node, expr1, expr2}
 	}
 	return node, nil
 }
@@ -363,11 +370,11 @@ func (p *parser) parsePrimaryExpression() (Node, error) {
 		}
 		switch token.value {
 		case "true":
-			return boolNode{value: true}, nil
+			return &boolNode{value: true}, nil
 		case "false":
-			return boolNode{value: false}, nil
+			return &boolNode{value: false}, nil
 		case "nil":
-			return nilNode{}, nil
+			return &nilNode{}, nil
 		default:
 			node, err = p.parseNameExpression(token)
 			if err != nil {
@@ -383,13 +390,13 @@ func (p *parser) parsePrimaryExpression() (Node, error) {
 		if err != nil {
 			return nil, p.errorf("%v", err)
 		}
-		return numberNode{value: number}, nil
+		return &numberNode{value: number}, nil
 
 	case text:
 		if err := p.next(); err != nil {
 			return nil, err
 		}
-		return textNode{value: token.value}, nil
+		return &textNode{value: token.value}, nil
 
 	default:
 		if token.is(punctuation, "[") {
@@ -418,12 +425,12 @@ func (p *parser) parseNameExpression(token token) (Node, error) {
 			return nil, err
 		}
 		if _, ok := builtins[token.value]; ok {
-			node = builtinNode{name: token.value, arguments: arguments}
+			node = &builtinNode{name: token.value, arguments: arguments}
 		} else {
-			node = functionNode{name: token.value, arguments: arguments}
+			node = &functionNode{name: token.value, arguments: arguments}
 		}
 	} else {
-		node = nameNode{name: token.value}
+		node = &nameNode{name: token.value}
 	}
 	return node, nil
 }
@@ -433,7 +440,7 @@ func (p *parser) parseArrayExpression() (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return arrayNode{nodes}, nil
+	return &arrayNode{nodes}, nil
 }
 
 func (p *parser) parseMapExpression() (Node, error) {
@@ -442,7 +449,7 @@ func (p *parser) parseMapExpression() (Node, error) {
 		return nil, err
 	}
 
-	nodes := make([]pairNode, 0)
+	nodes := make([]*pairNode, 0)
 	for !p.current.is(punctuation, "}") {
 		if len(nodes) > 0 {
 			err = p.expect(punctuation, ",")
@@ -458,7 +465,7 @@ func (p *parser) parseMapExpression() (Node, error) {
 		//  * a name, which is equivalent to a string
 		//  * an expression, which must be enclosed in parentheses -- (1 + 2)
 		if p.current.is(number) || p.current.is(text) || p.current.is(name) {
-			key = identifierNode{p.current.value}
+			key = &identifierNode{p.current.value}
 			if err := p.next(); err != nil {
 				return nil, err
 			}
@@ -480,7 +487,7 @@ func (p *parser) parseMapExpression() (Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		nodes = append(nodes, pairNode{key, node})
+		nodes = append(nodes, &pairNode{key, node})
 	}
 
 	err = p.expect(punctuation, "}")
@@ -488,7 +495,7 @@ func (p *parser) parseMapExpression() (Node, error) {
 		return nil, err
 	}
 
-	return mapNode{nodes}, nil
+	return &mapNode{nodes}, nil
 }
 
 func (p *parser) parsePostfixExpression(node Node) (Node, error) {
@@ -526,9 +533,9 @@ func (p *parser) parsePostfixExpression(node Node) (Node, error) {
 				if err != nil {
 					return nil, err
 				}
-				node = methodNode{node: node, method: token.value, arguments: arguments}
+				node = &methodNode{node: node, method: token.value, arguments: arguments}
 			} else {
-				node = propertyNode{node: node, property: token.value}
+				node = &propertyNode{node: node, property: token.value}
 			}
 
 		} else if token.value == "[" {
@@ -542,7 +549,7 @@ func (p *parser) parsePostfixExpression(node Node) (Node, error) {
 				return nil, err
 			}
 
-			node = indexNode{node: node, index: arg}
+			node = &indexNode{node: node, index: arg}
 
 			err = p.expect(punctuation, "]")
 			if err != nil {
