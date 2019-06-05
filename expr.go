@@ -1,15 +1,17 @@
 package expr
 
 import (
+	"context"
+	"reflect"
+
 	"github.com/jakub-gawlas/expr/checker"
 	"github.com/jakub-gawlas/expr/compiler"
 	"github.com/jakub-gawlas/expr/parser"
 	"github.com/jakub-gawlas/expr/vm"
-	"reflect"
 )
 
 // Eval parses, compiles and runs given input.
-func Eval(input string, env interface{}) (interface{}, error) {
+func Eval(input string, env interface{}, ctx context.Context) (interface{}, error) {
 	node, err := parser.Parse(input)
 	if err != nil {
 		return nil, err
@@ -20,7 +22,7 @@ func Eval(input string, env interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	output, err := vm.Run(program, env)
+	output, err := vm.Run(program, env, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +93,6 @@ func Compile(input string, ops ...OptionFn) (*vm.Program, error) {
 }
 
 // Run evaluates given bytecode program.
-func Run(program *vm.Program, env interface{}) (interface{}, error) {
-	return vm.Run(program, env)
+func Run(program *vm.Program, env interface{}, ctx context.Context) (interface{}, error) {
+	return vm.Run(program, env, ctx)
 }

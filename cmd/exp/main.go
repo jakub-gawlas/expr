@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/jakub-gawlas/expr/compiler"
 	"github.com/jakub-gawlas/expr/parser"
 	"github.com/jakub-gawlas/expr/vm"
 	"github.com/sanity-io/litter"
-	"io/ioutil"
-	"os"
 )
 
 var (
@@ -101,7 +102,7 @@ func runProgram() {
 	program, err := compiler.Compile(tree)
 	check(err)
 
-	out, err := vm.Run(program, nil)
+	out, err := vm.Run(program, nil, nil)
 	check(err)
 
 	litter.Dump(out)
@@ -126,7 +127,7 @@ func startRepl() {
 			continue
 		}
 
-		out, err := vm.Run(program, nil)
+		out, err := vm.Run(program, nil, nil)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 			continue

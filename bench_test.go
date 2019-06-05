@@ -1,9 +1,10 @@
 package expr_test
 
 import (
+	"testing"
+
 	"github.com/jakub-gawlas/expr"
 	"github.com/jakub-gawlas/expr/vm"
-	"testing"
 )
 
 func Benchmark_expr(b *testing.B) {
@@ -21,7 +22,7 @@ func Benchmark_expr(b *testing.B) {
 	var out interface{}
 
 	for n := 0; n < b.N; n++ {
-		out, err = vm.Run(program, params)
+		out, err = vm.Run(program, params, nil)
 	}
 
 	if err != nil {
@@ -42,7 +43,7 @@ func Benchmark_filter(b *testing.B) {
 	}
 
 	for n := 0; n < b.N; n++ {
-		_, err = vm.Run(program, params)
+		_, err = vm.Run(program, params, nil)
 	}
 
 	if err != nil {
@@ -66,7 +67,7 @@ func Benchmark_access(b *testing.B) {
 	env := Env{Price: Price{Value: 1}}
 
 	for n := 0; n < b.N; n++ {
-		_, err = vm.Run(program, env)
+		_, err = vm.Run(program, env, nil)
 	}
 
 	if err != nil {

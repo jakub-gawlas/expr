@@ -3,13 +3,14 @@ package expr_test
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/jakub-gawlas/expr"
 	"github.com/jakub-gawlas/expr/vm"
-	"strings"
 )
 
 func ExampleEval() {
-	output, err := expr.Eval("'hello world'", nil)
+	output, err := expr.Eval("'hello world'", nil, nil)
 	if err != nil {
 		fmt.Printf("err: %v", err)
 		return
@@ -29,7 +30,7 @@ func ExampleEval_map() {
 		},
 	}
 
-	output, err := expr.Eval("swipe(bar[foo])", env)
+	output, err := expr.Eval("swipe(bar[foo])", env, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -58,7 +59,7 @@ func ExampleEval_map_method() {
 		return
 	}
 
-	output, err := expr.Run(program, env)
+	output, err := expr.Run(program, env, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -76,7 +77,7 @@ func ExampleEval_struct() {
 
 	env := A{B{&C{42}}}
 
-	output, err := expr.Eval("A.B.C", env)
+	output, err := expr.Eval("A.B.C", env, nil)
 
 	if err != nil {
 		fmt.Printf("%v", err)
@@ -89,7 +90,7 @@ func ExampleEval_struct() {
 }
 
 func ExampleEval_error() {
-	output, err := expr.Eval("(boo + bar]", nil)
+	output, err := expr.Eval("(boo + bar]", nil, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -103,7 +104,7 @@ func ExampleEval_error() {
 }
 
 func ExampleEval_matches() {
-	output, err := expr.Eval(`"a" matches "a("`, nil)
+	output, err := expr.Eval(`"a" matches "a("`, nil, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -128,7 +129,7 @@ func ExampleRun() {
 		return
 	}
 
-	output, err := expr.Run(program, env)
+	output, err := expr.Run(program, env, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -172,7 +173,7 @@ func ExampleEnv() {
 		Meta:   map[string]interface{}{"accept": true},
 	}
 
-	output, err := expr.Run(program, request)
+	output, err := expr.Run(program, request, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -208,7 +209,7 @@ func ExampleEval_marshal() {
 		return
 	}
 
-	output, err := expr.Run(unmarshaledProgram, env)
+	output, err := expr.Run(unmarshaledProgram, env, nil)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return

@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 	"reflect"
@@ -10,8 +11,8 @@ import (
 	"github.com/jakub-gawlas/expr/internal/helper"
 )
 
-func Run(program *Program, env interface{}) (out interface{}, err error) {
-	vm := NewVM(false)
+func Run(program *Program, env interface{}, ctx context.Context) (out interface{}, err error) {
+	vm := NewVM(false, ctx)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -40,12 +41,14 @@ type VM struct {
 	debug     bool
 	step      chan struct{}
 	curr      chan int
+	ctx       reflect.Value
 }
 
-func NewVM(debug bool) *VM {
+func NewVM(debug bool, ctx context.Context) *VM {
 	vm := &VM{
 		stack: make([]interface{}, 0, 2),
 		debug: debug,
+		ctx:   reflect.ValueOf(ctx),
 	}
 	if vm.debug {
 		vm.step = make(chan struct{}, 0)
@@ -245,12 +248,33 @@ func (vm *VM) Run() (interface{}, error) {
 		case OpCall:
 			call := vm.constants[vm.arg()].(Call)
 
-			in := make([]reflect.Value, call.Size)
-			for i := call.Size - 1; i >= 0; i-- {
-				in[i] = reflect.ValueOf(vm.pop())
+			fn := fetchFn(vm.env, call.Name)
+
+			var passCtx bool
+			fnType := fn.Type()
+			if fnType.NumIn() > 0 {
+				firstIn := fnType.In(0)
+				if firstIn.String() == "context.Context" {
+					passCtx = true
+				}
 			}
 
-			out := fetchFn(vm.env, call.Name).Call(in)
+			size := call.Size
+			stopAt := 0
+			if passCtx {
+				size += 1
+				stopAt = 1
+			}
+
+			in := make([]reflect.Value, size)
+			for i := size - 1; i >= stopAt; i-- {
+				in[i] = reflect.ValueOf(vm.pop())
+			}
+			if passCtx {
+				in[0] = vm.ctx
+			}
+
+			out := fn.Call(in)
 
 			var (
 				err error

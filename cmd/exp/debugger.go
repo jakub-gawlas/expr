@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/jakub-gawlas/expr/compiler"
-	"github.com/jakub-gawlas/expr/parser"
-	. "github.com/jakub-gawlas/expr/vm"
-	"github.com/gdamore/tcell"
-	"github.com/rivo/tview"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gdamore/tcell"
+	"github.com/jakub-gawlas/expr/compiler"
+	"github.com/jakub-gawlas/expr/parser"
+	. "github.com/jakub-gawlas/expr/vm"
+	"github.com/rivo/tview"
 )
 
 func debugger() {
@@ -20,7 +21,7 @@ func debugger() {
 	program, err := compiler.Compile(tree)
 	check(err)
 
-	vm := NewVM(true)
+	vm := NewVM(true, nil)
 	vm.SetProgram(program)
 	go vm.Run()
 

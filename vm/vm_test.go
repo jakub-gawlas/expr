@@ -2,14 +2,15 @@ package vm_test
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/jakub-gawlas/expr/checker"
 	"github.com/jakub-gawlas/expr/compiler"
 	"github.com/jakub-gawlas/expr/parser"
 	"github.com/jakub-gawlas/expr/vm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestRun_debug(t *testing.T) {
@@ -26,7 +27,7 @@ func TestRun_debug(t *testing.T) {
 	program, err := compiler.Compile(node)
 	require.NoError(t, err)
 
-	_, err = vm.Run(program, env)
+	_, err = vm.Run(program, env, nil)
 	require.NoError(t, err)
 }
 
@@ -265,7 +266,7 @@ func TestRun(t *testing.T) {
 		program, err := compiler.Compile(tree)
 		require.NoError(t, err, test.input)
 
-		output, err := vm.Run(program, env)
+		output, err := vm.Run(program, env, nil)
 		require.NoError(t, err, test.input)
 
 		assert.Equal(t, test.output, output, test.input)
