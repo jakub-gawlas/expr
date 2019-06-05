@@ -45,10 +45,14 @@ type VM struct {
 }
 
 func NewVM(debug bool, ctx context.Context) *VM {
+	var ctxVal = reflect.ValueOf(&ctx)
+	if ctx == nil {
+		ctxVal = ctxVal.Elem()
+	}
 	vm := &VM{
 		stack: make([]interface{}, 0, 2),
 		debug: debug,
-		ctx:   reflect.ValueOf(ctx),
+		ctx:   ctxVal,
 	}
 	if vm.debug {
 		vm.step = make(chan struct{}, 0)

@@ -3,13 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5c30d40c-20e9-4bb6-a468-f39e57d437e9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bench_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/bench_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/exp/debugger.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/exp/debugger.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/exp/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/exp/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/expr.go" beforeDir="false" afterPath="$PROJECT_DIR$/expr.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/expr_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/expr_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vm/vm.go" beforeDir="false" afterPath="$PROJECT_DIR$/vm/vm.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vm/vm_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/vm/vm_test.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,47 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vm/vm_test.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="268" column="47" selection-start-line="268" selection-start-column="47" selection-end-line="268" selection-end-column="47" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/expr.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="96" column="35" selection-start-line="96" selection-start-column="35" selection-end-line="96" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/expr_test.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="211" column="56" selection-start-line="211" selection-start-column="56" selection-end-line="211" selection-end-column="56" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cmd/exp/main.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="104" column="40" selection-start-line="104" selection-start-column="40" selection-end-line="104" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/cmd/exp/debugger.go">
+        <entry file="file://$PROJECT_DIR$/vm/vm.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="32" column="23" lean-forward="true" selection-start-line="32" selection-start-column="23" selection-end-line="32" selection-end-column="23" />
+            <state relative-caret-position="136">
+              <caret line="47" column="34" selection-start-line="47" selection-start-column="34" selection-end-line="47" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -92,12 +50,12 @@
         <option value="$PROJECT_DIR$/go.mod" />
         <option value="$PROJECT_DIR$/checker/checker.go" />
         <option value="$PROJECT_DIR$/vm/vm_test.go" />
-        <option value="$PROJECT_DIR$/vm/vm.go" />
         <option value="$PROJECT_DIR$/expr.go" />
         <option value="$PROJECT_DIR$/expr_test.go" />
         <option value="$PROJECT_DIR$/bench_test.go" />
         <option value="$PROJECT_DIR$/cmd/exp/main.go" />
         <option value="$PROJECT_DIR$/cmd/exp/debugger.go" />
+        <option value="$PROJECT_DIR$/vm/vm.go" />
       </list>
     </option>
   </component>
@@ -131,13 +89,7 @@
             <path>
               <item name="expr" type="b2602c69:ProjectViewProjectNode" />
               <item name="expr" type="462c0819:PsiDirectoryNode" />
-              <item name="cmd" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="expr" type="b2602c69:ProjectViewProjectNode" />
-              <item name="expr" type="462c0819:PsiDirectoryNode" />
-              <item name="cmd" type="462c0819:PsiDirectoryNode" />
-              <item name="exp" type="462c0819:PsiDirectoryNode" />
+              <item name="vm" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -169,6 +121,15 @@
       </list>
     </option>
   </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
@@ -187,7 +148,7 @@
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32891566" />
       <window_info anchor="right" id="Key Promoter X" />
       <window_info anchor="right" id="Database" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -257,27 +218,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vm/vm.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="145">
-          <caret line="255" column="19" selection-start-line="255" selection-start-column="19" selection-end-line="255" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vm/vm_test.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="268" column="47" selection-start-line="268" selection-start-column="47" selection-end-line="268" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/expr.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="96" column="35" selection-start-line="96" selection-start-column="35" selection-end-line="96" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bench_test.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
@@ -285,10 +225,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/expr_test.go">
+    <entry file="file://$PROJECT_DIR$/cmd/exp/debugger.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="211" column="56" selection-start-line="211" selection-start-column="56" selection-end-line="211" selection-end-column="56" />
+        <state relative-caret-position="330">
+          <caret line="34" column="10" lean-forward="true" selection-start-line="34" selection-start-column="10" selection-end-line="34" selection-end-column="10" />
         </state>
       </provider>
     </entry>
@@ -299,10 +239,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmd/exp/debugger.go">
+    <entry file="file://$PROJECT_DIR$/expr_test.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="32" column="23" lean-forward="true" selection-start-line="32" selection-start-column="23" selection-end-line="32" selection-end-column="23" />
+        <state relative-caret-position="278">
+          <caret line="211" column="56" selection-start-line="211" selection-start-column="56" selection-end-line="211" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/expr.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="398">
+          <caret line="96" column="35" selection-start-line="96" selection-start-column="35" selection-end-line="96" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vm/vm_test.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="268" column="47" selection-start-line="268" selection-start-column="47" selection-end-line="268" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vm/vm.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="47" column="34" selection-start-line="47" selection-start-column="34" selection-end-line="47" selection-end-column="34" />
         </state>
       </provider>
     </entry>
