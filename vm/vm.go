@@ -3,10 +3,11 @@ package vm
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/antonmedv/expr/internal/helper"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/antonmedv/expr/internal/helper"
 )
 
 func Run(program *Program, env interface{}) (out interface{}, err error) {
@@ -24,7 +25,7 @@ func Run(program *Program, env interface{}) (out interface{}, err error) {
 
 	vm.SetProgram(program)
 	vm.SetEnv(env)
-	out = vm.Run()
+	out, err = vm.Run()
 	return
 }
 
@@ -62,7 +63,7 @@ func (vm *VM) SetEnv(env interface{}) {
 	vm.env = env
 }
 
-func (vm *VM) Run() interface{} {
+func (vm *VM) Run() (interface{}, error) {
 	for vm.ip < len(vm.bytecode) {
 
 		if vm.debug {
@@ -250,6 +251,21 @@ func (vm *VM) Run() interface{} {
 			}
 
 			out := fetchFn(vm.env, call.Name).Call(in)
+
+			var (
+				err error
+				ok  bool
+			)
+			switch len(out) {
+			case 1:
+				err, ok = Error(out[0])
+			case 2:
+				err, ok = Error(out[1])
+			}
+			if ok && err != nil {
+				return nil, err
+			}
+
 			vm.push(out[0].Interface())
 
 		case OpMethod:
@@ -319,10 +335,10 @@ func (vm *VM) Run() interface{} {
 	}
 
 	if len(vm.stack) > 0 {
-		return vm.pop()
+		return vm.pop(), nil
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (vm *VM) push(value interface{}) {
@@ -364,4 +380,9 @@ func (vm *VM) Step() {
 
 func (vm *VM) Position() chan int {
 	return vm.curr
+}
+
+func Error(value reflect.Value) (error, bool) {
+	err, ok := value.Interface().(error)
+	return err, ok
 }
