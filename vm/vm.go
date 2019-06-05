@@ -266,7 +266,9 @@ func (vm *VM) Run() (interface{}, error) {
 				return nil, err
 			}
 
-			vm.push(out[0].Interface())
+			if len(out) > 0 {
+				vm.push(out[0].Interface())
+			}
 
 		case OpMethod:
 			call := vm.constants[vm.arg()].(Call)
