@@ -45,9 +45,9 @@ type VM struct {
 }
 
 func NewVM(debug bool, ctx context.Context) *VM {
-	var ctxVal = reflect.ValueOf(&ctx)
+	var ctxVal = reflect.ValueOf(ctx)
 	if ctx == nil {
-		ctxVal = ctxVal.Elem()
+		ctxVal = reflect.ValueOf(&ctx).Elem()
 	}
 	vm := &VM{
 		stack: make([]interface{}, 0, 2),
