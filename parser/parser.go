@@ -5,9 +5,9 @@ package parser
 import (
 	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"github.com/antonmedv/expr/ast"
-	"github.com/antonmedv/expr/internal/helper"
-	"github.com/antonmedv/expr/parser/gen"
+	"github.com/jakub-gawlas/expr/ast"
+	"github.com/jakub-gawlas/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/parser/gen"
 	"regexp"
 	"strconv"
 	"strings"

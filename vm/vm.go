@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/antonmedv/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/internal/helper"
 )
 
 func Run(program *Program, env interface{}) (out interface{}, err error) {

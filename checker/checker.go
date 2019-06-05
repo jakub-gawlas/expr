@@ -2,10 +2,11 @@ package checker
 
 import (
 	"fmt"
-	"github.com/antonmedv/expr/ast"
-	"github.com/antonmedv/expr/internal/helper"
-	"github.com/antonmedv/expr/parser"
 	"reflect"
+
+	"github.com/jakub-gawlas/expr/ast"
+	"github.com/jakub-gawlas/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/parser"
 )
 
 func Check(tree *parser.Tree, types TypesTable) (t reflect.Type, err error) {

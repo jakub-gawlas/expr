@@ -3,7 +3,7 @@
 ## Install
 
 ```bash
-go get github.com/antonmedv/expr/cmd/exp
+go get github.com/jakub-gawlas/expr/cmd/exp
 ```
 
 ## Usage

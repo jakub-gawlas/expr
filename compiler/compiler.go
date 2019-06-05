@@ -3,10 +3,10 @@ package compiler
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/antonmedv/expr/ast"
-	"github.com/antonmedv/expr/internal/helper"
-	"github.com/antonmedv/expr/parser"
-	. "github.com/antonmedv/expr/vm"
+	"github.com/jakub-gawlas/expr/ast"
+	"github.com/jakub-gawlas/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/parser"
+	. "github.com/jakub-gawlas/expr/vm"
 	"math"
 	"reflect"
 )

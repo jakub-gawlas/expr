@@ -1,7 +1,7 @@
 package ast_test
 
 import (
-	"github.com/antonmedv/expr/ast"
+	"github.com/jakub-gawlas/expr/ast"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

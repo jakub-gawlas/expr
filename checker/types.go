@@ -1,7 +1,7 @@
 package checker
 
 import (
-	"github.com/antonmedv/expr/ast"
+	"github.com/jakub-gawlas/expr/ast"
 	"reflect"
 )
 

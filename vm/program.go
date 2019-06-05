@@ -3,7 +3,7 @@ package vm
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/antonmedv/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/internal/helper"
 	"regexp"
 )
 

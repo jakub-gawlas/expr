@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	. "github.com/antonmedv/expr/ast"
+	. "github.com/jakub-gawlas/expr/ast"
 	"os"
 )
 

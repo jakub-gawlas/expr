@@ -1,9 +1,9 @@
 package compiler_test
 
 import (
-	"github.com/antonmedv/expr/compiler"
-	"github.com/antonmedv/expr/parser"
-	"github.com/antonmedv/expr/vm"
+	"github.com/jakub-gawlas/expr/compiler"
+	"github.com/jakub-gawlas/expr/parser"
+	"github.com/jakub-gawlas/expr/vm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"math"

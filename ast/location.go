@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/antonmedv/expr/internal/helper"
+	"github.com/jakub-gawlas/expr/internal/helper"
 )
 
 func (n *NilNode) SetLocation(l helper.Location) {

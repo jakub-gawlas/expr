@@ -2,8 +2,8 @@ package checker_test
 
 import (
 	"fmt"
-	"github.com/antonmedv/expr/checker"
-	"github.com/antonmedv/expr/parser"
+	"github.com/jakub-gawlas/expr/checker"
+	"github.com/jakub-gawlas/expr/parser"
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"strings"

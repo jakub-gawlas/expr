@@ -1,10 +1,10 @@
 <p align="center"><img src="docs/images/logo-small.png" width="150" alt="expr logo"></p>
 
 # Expr 
-[![Build Status](https://travis-ci.org/antonmedv/expr.svg?branch=master)](https://travis-ci.org/antonmedv/expr) 
-[![Go Report Card](https://goreportcard.com/badge/github.com/antonmedv/expr)](https://goreportcard.com/report/github.com/antonmedv/expr) 
-[![Code Coverage](https://scrutinizer-ci.com/g/antonmedv/expr/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/antonmedv/expr/?branch=master) 
-[![GoDoc](https://godoc.org/github.com/antonmedv/expr?status.svg)](https://godoc.org/github.com/antonmedv/expr)
+[![Build Status](https://travis-ci.org/jakub-gawlas/expr.svg?branch=master)](https://travis-ci.org/jakub-gawlas/expr) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/jakub-gawlas/expr)](https://goreportcard.com/report/github.com/jakub-gawlas/expr) 
+[![Code Coverage](https://scrutinizer-ci.com/g/jakub-gawlas/expr/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jakub-gawlas/expr/?branch=master) 
+[![GoDoc](https://godoc.org/github.com/jakub-gawlas/expr?status.svg)](https://godoc.org/github.com/jakub-gawlas/expr)
 
 **Expr** package provides an engine that can compile and evaluate expressions. 
 An expression is a one-liner that returns a value (mostly, but not limited to, booleans).
@@ -28,7 +28,7 @@ product.Stock < 15
 ## Features
 
 * Seamless integration with Go.
-* Static typing ([example](https://godoc.org/github.com/antonmedv/expr#example-Env)).
+* Static typing ([example](https://godoc.org/github.com/jakub-gawlas/expr#example-Env)).
   ```go
   out, err := expr.Eval("'hello' + 10")
   // err: invalid operation + (mismatched types string and int64)
@@ -41,15 +41,15 @@ product.Stock < 15
   ```coffeescript
   all(Tweets, {.Size < 140})
   ```
-* Fast ([benchmarks](https://github.com/antonmedv/golang-expression-evaluation-comparison)).
+* Fast ([benchmarks](https://github.com/jakub-gawlas/golang-expression-evaluation-comparison)).
 
 ## Install
 
 ```
-go get github.com/antonmedv/expr
+go get github.com/jakub-gawlas/expr
 ```
 
-<a href="https://www.patreon.com/antonmedv">
+<a href="https://www.patreon.com/jakub-gawlas">
 	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
 </a>
 

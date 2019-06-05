@@ -1,8 +1,8 @@
 package expr_test
 
 import (
-	"github.com/antonmedv/expr"
-	"github.com/antonmedv/expr/vm"
+	"github.com/jakub-gawlas/expr"
+	"github.com/jakub-gawlas/expr/vm"
 	"testing"
 )
 

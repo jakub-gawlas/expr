@@ -2,10 +2,10 @@ package vm_test
 
 import (
 	"fmt"
-	"github.com/antonmedv/expr/checker"
-	"github.com/antonmedv/expr/compiler"
-	"github.com/antonmedv/expr/parser"
-	"github.com/antonmedv/expr/vm"
+	"github.com/jakub-gawlas/expr/checker"
+	"github.com/jakub-gawlas/expr/compiler"
+	"github.com/jakub-gawlas/expr/parser"
+	"github.com/jakub-gawlas/expr/vm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
